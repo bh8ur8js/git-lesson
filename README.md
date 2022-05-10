@@ -1,6 +1,6 @@
-#Git lesson
+# Git lesson
 
-##Demo of markdown
+## Demo of markdown
 
 You can get a markdown cheatsheet here. 
 
