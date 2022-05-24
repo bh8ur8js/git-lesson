@@ -12,15 +12,22 @@ class PokerHand < Player
     super
   end
 
-  def sets
-    @counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  def dealt_card(card)
+    super
+    evaluate_hand
+  end
+
+  def evaluate_hand
+    count_suits
+    count_values
+  end
+
+  def count_suits
     @diamonds = 0
     @hearts = 0
     @clubs = 0
     @spades = 0
-
     @cards.each do |card|
-      @counts[card[:value] - 2] = @counts[card[:value] - 2] + 1
       case card[:suit]
       when 'H'
         @hearts += 1
@@ -31,24 +38,44 @@ class PokerHand < Player
       when 'D'
         @diamonds += 1
       end
-    end
-    @suits = [@diamonds, @hearts, @spades, @clubs]
-    @pairs = counts.map.with_index { |v, i| { value: i } if v == 2 }.compact.reverse
-    @set = counts.map.with_index { |v, i| { value: i } if v == 3 }.compact
-    @quads = counts.map.with_index { |v, i| { value: i } if v == 4 }.compact
-
-    return "You have a #{@cards.map { |h| h[:value] }.max} high flush." if @suits.max == 5
-
-    if !@quads.empty?
-      "quads (3) #{@quads[0][:value] + 2}"
-    elsif @pairs.count == 1 && @set.count == 1
-      "full house #{@set[0][:value] + 2}'s full of #{@pairs[0][:value] + 2}'s"
-    elsif @set.size > 0
-      "Set of #{@set[0][:value] + 2}'s"
-    elsif @pairs.size > 0
-      "Pair of #{@pairs[0][:value] + 2}'s #{"and a pair of #{@pairs[1][:value] + 2}" if @pairs.size == 2}"
-    else
-      "high card #{@cards.map { |h| h[:value] }.max + 2}"
-    end
   end
+
+  def count_values
+    @counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    @cards.each do |card|
+      @counts[card[:value] - 2] = @counts[card[:value] - 2] + 1
+    end
+    @ordered_values = @cards.map { |h| h[:value] }.sort.reverse.map { |s| "0#{s}".chars.last(2).join }.join
+  end
+  
+
+  def score_hand
+    @pairs = @counts.map.with_index { |v, i| { value: i } if v == 2 }.compact
+    @set = @counts.map.with_index { |v, i| { value: i } if v == 3 }.compact
+    @quads = @counts.map.with_index { |v, i| { value: i } if v == 4 }.compact
+    @suits = [@diamonds, @hearts, @spades, @clubs]
+
+    @score = if @suits.max == 5 && straight?
+               ('9.' + @ordered_values).to_f
+             elsif !@quads.empty?
+               ('8.' + @ordered_values).to_f
+             elsif @pairs.count == 1 && @set.count == 1
+               ('7.' + @ordered_values).to_f
+             elsif @suits.max == 5
+               ('6.' + @ordered_values).to_f
+             elsif straight?
+               ('5.' + @ordered_values).to_f
+             elsif @set.size > 0
+               ('4.' + @ordered_values).to_f
+             elsif @pairs.size == 2
+               ('3.' + @ordered_values).to_f
+             elsif @pairs.size == 1
+               ('2.' + @ordered_values).to_f
+             else
+               ('1.' + @ordered_values).to_f
+             end
+    @score
+  end
+
+  
 end
