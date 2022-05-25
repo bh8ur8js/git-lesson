@@ -17,7 +17,7 @@ class Player
       cards = "#{cards}#{card[:value]}#{card[:suit]} "
     end
     puts "#{@name} has cards #{cards}"
-    nil
+    cards
   end
 
   def muck_cards

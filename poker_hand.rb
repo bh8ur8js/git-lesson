@@ -51,8 +51,8 @@ class PokerHand < Player
       @set = @counts.map.with_index { |v, i| { value: i } if v == 3 }.compact
       @quads = @counts.map.with_index { |v, i| { value: i } if v == 4 }.compact
       @suits = [@diamonds, @hearts, @spades, @clubs]
-
-      @score = if @suits.max == 5 && straight?
+      ordered_values
+      @score = if (@suits.max == 5 && straight?)
                  ('9.' + @ordered_values).to_f
                elsif !@quads.empty?
                  ('8.' + @ordered_values).to_f
@@ -74,7 +74,7 @@ class PokerHand < Player
     end
   end
 
-  def ordered_values=
+  def ordered_values
      list_of_pairs = @counts.map.with_index { |v, i| {type: v, value: i+2 } if v > 0 }.compact
       sorted =list_of_pairs.sort_by {|h| h[:type]}.reverse
       @ordered_values = sorted.map {|h| ("0"+h[:value].to_s).chars.last(2).join*h[:type] }.join
