@@ -51,7 +51,7 @@ class PokerHand < Player
       @set = @counts.map.with_index { |v, i| { value: i } if v == 3 }.compact
       @quads = @counts.map.with_index { |v, i| { value: i } if v == 4 }.compact
       @suits = [@diamonds, @hearts, @spades, @clubs]
-      ordered_values
+      ordered_values||
       @score = if (@suits.max == 5 && straight?)
                  ('9.' + @ordered_values).to_f
                elsif !@quads.empty?
